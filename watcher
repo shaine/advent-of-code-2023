@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# chmod +x *
+
+DIRECTORY_TO_WATCH="."
+COMMAND_TO_RUN="./day-3-2-test.rb"
+DEBOUNCE_TIME=1 # seconds
+
+function run_command {
+    $COMMAND_TO_RUN
+    sleep "$DEBOUNCE_TIME"
+}
+
+inotifywait -m -e modify -r "$DIRECTORY_TO_WATCH" |
+while read path action file; do
+    # Kill the previous instance of run_command if it's still running
+    [[ -n $PID ]] && kill $PID 2>/dev/null
+
+    # Run the command in the background
+    run_command &
+    PID=$!
+done
+
